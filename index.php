@@ -8,7 +8,7 @@ trait AppUserAuthentication
     public $passwordOldApp = 222;
 
     //Метод проверки логина и пароля пользователя соответствия логину и паролю в приложении, который будет использователься в методе авторизации в классе Person
-    public function authenticateApp($login, $password)
+    public function authenticate($login, $password)
     {
         // if ($login === $this->loginOld and $password === $this->passwordOld) {
         //     return true;
@@ -28,7 +28,7 @@ trait MobileUserAuthentication
     public $passwordOldMobile = 2222;
 
     //Метод проверки логина и пароля пользователя соответствия логину и паролю в мобильном приложении, который будет использователься в методе авторизации в классе Person
-    public function authenticateMobile($login, $password)
+    public function authenticate($login, $password)
     {
         return $login === $this->loginOldMobile && $password === $this->passwordOldMobile;
     }
@@ -37,8 +37,10 @@ trait MobileUserAuthentication
 
 class Person
 {
-    use AppUserAuthentication;
-    use MobileUserAuthentication;
+    use AppUserAuthentication, MobileUserAuthentication {
+        AppUserAuthentication::authenticate insteadof MobileUserAuthentication;
+        MobileUserAuthentication::authenticate as authenticateMobile;
+    }
 
     public $login;
     public $password;
@@ -53,7 +55,7 @@ class Person
     //Метод авторизации по ранее введнному логину и паролю. 
     public function authorization()
     {
-        if ($this->authenticateApp($this->login, $this->password)) { //Здесь используется метод authenticateApp из трейта AppUserAuthentication
+        if ($this->authenticate($this->login, $this->password)) { //Здесь используется метод authenticateApp из трейта AppUserAuthentication
             echo "Авторизация прошла успешно в приложении" . PHP_EOL;
         } 
         if ($this->authenticateMobile($this->login, $this->password)) { //Здесь используется метод authenticateMobile из трейта MobileUserAuthentication
